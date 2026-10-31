@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Archit Chhikara – CS undergraduate working on EEG signal processing, RAG systems and LLM evaluation.">
+<meta property="og:title" content="Archit Chhikara">
+<meta property="og:description" content="Research in EEG signal processing and LLM evaluation. Projects, internships and contact.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%232A55C9'/%3E%3Cpath d='M3 18h6l2-8 4 14 3-10 2 4h9' fill='none' stroke='white' stroke-width='2.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Archit Chhikara</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a recording sheet. The hero is a live 4-channel trace whose channels are the site's navigation;
+   below, sections read like annotated epochs on the same grid paper. */
+:root{
+  --paper:#EDF1EF; --paper-2:#E3E9E6; --grid:rgba(40,70,90,.07); --grid-strong:rgba(40,70,90,.13);
+  --ink:#18212C; --ink-soft:#4C5866; --ink-faint:#7E8995;
+  --pen:#2A55C9; --pen-soft:rgba(42,85,201,.12); --mark:#B4492F;
+  --display:"Familjen Grotesk",ui-sans-serif,system-ui,sans-serif;
+  --body:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#10151B; --paper-2:#161D25; --grid:rgba(150,180,200,.06); --grid-strong:rgba(150,180,200,.12);
+  --ink:#DCE3E9; --ink-soft:#A3AEB9; --ink-faint:#6E7A86;
+  --pen:#86A6FF; --pen-soft:rgba(134,166,255,.14); --mark:#E2876C; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#10151B; --paper-2:#161D25; --grid:rgba(150,180,200,.06); --grid-strong:rgba(150,180,200,.12);
+  --ink:#DCE3E9; --ink-soft:#A3AEB9; --ink-faint:#6E7A86;
+  --pen:#86A6FF; --pen-soft:rgba(134,166,255,.14); --mark:#E2876C; color-scheme:dark}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{
+  background:var(--paper); color:var(--ink); font-family:var(--body); font-size:17px; line-height:1.6;
+  background-image:
+    linear-gradient(var(--grid) 1px,transparent 1px),
+    linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;
+}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--pen);outline-offset:3px;border-radius:2px}
+.mono{font-family:var(--mono);font-size:12px;letter-spacing:.04em}
+.lbl{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint)}
+
+/* top bar */
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-block:22px;flex-wrap:wrap}
+.top .rec{display:flex;align-items:center;gap:8px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--mark);animation:blink 2s infinite}
+@keyframes blink{50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){.dot{animation:none}}
+.theme{background:none;border:1px solid var(--grid-strong);color:var(--ink-soft);font:inherit;font-family:var(--mono);font-size:11.5px;padding:6px 10px;border-radius:4px;cursor:pointer;letter-spacing:.06em}
+.theme:hover{color:var(--ink);border-color:var(--ink-faint)}
+
+/* hero */
+.hero{padding-block:28px 12px;display:grid;gap:28px}
+.hero h1{font-family:var(--display);font-weight:600;font-size:clamp(46px,8.5vw,104px);line-height:.92;letter-spacing:-.035em;margin:0;text-wrap:balance}
+.hero h1 span{color:var(--ink-faint);font-weight:500}
+.lede{max-width:58ch;font-size:clamp(18px,2.1vw,21px);color:var(--ink-soft);margin:0}
+.lede em{color:var(--ink);font-style:italic}
+
+.scope{position:relative;border-top:1px solid var(--grid-strong);border-bottom:1px solid var(--grid-strong);margin-top:8px}
+.scope canvas{display:block;width:100%;height:288px}
+.chans{position:absolute;inset:0;display:grid;grid-template-rows:repeat(4,1fr)}
+.chan{all:unset;cursor:pointer;display:flex;align-items:center;gap:14px;padding-left:2px;position:relative}
+.chan:focus-visible{outline:2px solid var(--pen);outline-offset:-2px}
+.chan .id{font-family:var(--mono);font-size:12px;color:var(--ink-faint);width:34px;transition:color .2s}
+.chan .nm{font-family:var(--display);font-size:15px;font-weight:600;color:var(--ink-soft);background:var(--paper);padding:2px 8px;border-radius:3px;transition:color .2s,background .2s}
+.chan:hover .id,.chan:focus-visible .id{color:var(--pen)}
+.chan:hover .nm,.chan:focus-visible .nm{color:var(--pen);background:var(--pen-soft)}
+.scale{display:flex;justify-content:space-between;padding-block:8px 0;color:var(--ink-faint)}
+
+/* sections */
+section{padding-block:72px 8px}
+.sh{display:grid;grid-template-columns:150px 1fr;gap:24px;align-items:baseline;margin-bottom:34px}
+.sh h2{font-family:var(--display);font-weight:600;font-size:clamp(28px,4vw,40px);letter-spacing:-.02em;margin:0;line-height:1.05;text-wrap:balance}
+@media (max-width:700px){.sh{grid-template-columns:1fr;gap:6px}}
+
+.about{display:grid;grid-template-columns:150px 1fr 280px;gap:24px}
+.about p{margin:0 0 14px;max-width:62ch}
+.facts{display:grid;gap:14px;align-content:start;font-size:15px}
+.facts div{border-top:1px solid var(--grid-strong);padding-top:8px}
+.facts b{display:block;font-family:var(--mono);font-weight:400;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint)}
+@media (max-width:900px){.about{grid-template-columns:1fr}.about>.spacer{display:none}}
+
+/* timeline */
+.tl{display:grid;gap:0}
+.ep{display:grid;grid-template-columns:150px 1fr;gap:24px;padding-block:22px;border-top:1px solid var(--grid-strong);position:relative}
+.ep:last-child{border-bottom:1px solid var(--grid-strong)}
+.ep .when{font-family:var(--mono);font-size:12.5px;color:var(--ink-faint);padding-top:5px}
+.ep .when .now{display:inline-block;margin-top:6px;color:var(--mark);font-size:11px;letter-spacing:.1em}
+.ep h3{font-family:var(--display);font-weight:600;font-size:22px;margin:0;letter-spacing:-.01em}
+.ep .role{color:var(--ink-soft);font-style:italic;margin:2px 0 10px}
+.ep ul{margin:0;padding-left:18px;max-width:64ch;color:var(--ink-soft)}
+.ep li{margin-bottom:4px}
+.ep li::marker{color:var(--ink-faint)}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.tag{font-family:var(--mono);font-size:11px;padding:3px 8px;border:1px solid var(--grid-strong);border-radius:3px;color:var(--ink-soft)}
+@media (max-width:700px){.ep{grid-template-columns:1fr;gap:4px}}
+
+/* projects */
+.projs{display:grid;gap:18px}
+.proj{display:grid;grid-template-columns:150px 1fr;gap:24px;padding-block:6px 22px}
+.proj h3{font-family:var(--display);font-weight:600;font-size:22px;margin:0 0 6px;letter-spacing:-.01em}
+.proj p{margin:0 0 16px;color:var(--ink-soft);max-width:64ch}
+.pipe{display:flex;flex-wrap:wrap;align-items:center;gap:0;font-family:var(--mono);font-size:12px}
+.stage{padding:7px 11px;border:1px solid var(--grid-strong);background:var(--paper);color:var(--ink-soft);border-radius:3px;cursor:default;transition:all .2s}
+.arrow{width:18px;height:1px;background:var(--ink-faint);position:relative;margin:0 2px}
+.arrow::after{content:"";position:absolute;right:0;top:-3px;border-left:5px solid var(--ink-faint);border-top:3.5px solid transparent;border-bottom:3.5px solid transparent}
+.pipe:hover .stage{opacity:.55}
+.pipe .stage:hover{opacity:1;color:var(--pen);border-color:var(--pen);background:var(--pen-soft)}
+.pipe.run .stage{animation:flow 2.4s ease-in-out}
+@keyframes flow{0%,100%{}50%{color:var(--pen);border-color:var(--pen)}}
+.stage-note{min-height:1.6em;margin-top:10px;font-size:14.5px;color:var(--ink-faint);font-style:italic}
+.num{font-family:var(--mono);font-size:12px;color:var(--ink-faint);padding-top:6px}
+@media (max-width:700px){.proj{grid-template-columns:1fr;gap:4px}}
+
+/* ask */
+.ask{display:grid;grid-template-columns:150px 1fr;gap:24px}
+@media (max-width:700px){.ask{grid-template-columns:1fr;gap:4px}}
+.console{border:1px solid var(--grid-strong);background:var(--paper-2);border-radius:6px;padding:18px;min-width:0}
+.q{display:flex;gap:8px}
+.q input{flex:1;min-width:0;font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--grid-strong);border-radius:4px;background:var(--paper);color:var(--ink)}
+.q input:focus{outline:2px solid var(--pen);outline-offset:-1px}
+.btn{font-family:var(--mono);font-size:12px;letter-spacing:.06em;padding:0 16px;border-radius:4px;border:1px solid var(--pen);background:var(--pen);color:var(--paper);cursor:pointer}
+.btn:hover{filter:brightness(1.08)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 4px}
+.chip{font:inherit;font-family:var(--mono);font-size:11.5px;padding:5px 9px;border-radius:999px;border:1px solid var(--grid-strong);background:transparent;color:var(--ink-soft);cursor:pointer}
+.chip:hover{color:var(--pen);border-color:var(--pen)}
+.hits{display:grid;gap:10px;margin-top:16px}
+.hit{display:grid;grid-template-columns:62px 1fr;gap:12px;align-items:start;padding:10px 0;border-top:1px dashed var(--grid-strong)}
+.bar{height:4px;background:var(--grid-strong);border-radius:2px;margin-top:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--pen);transition:width .5s}
+.hit .src{color:var(--ink-faint);margin-bottom:2px}
+.hit .txt{font-size:15.5px;min-width:0}
+.hit mark{background:var(--pen-soft);color:var(--pen);padding:0 2px;border-radius:2px}
+.foot{margin-top:12px;color:var(--ink-faint);font-size:13.5px}
+
+/* achievements */
+.ach{display:grid;grid-template-columns:150px 1fr;gap:24px}
+.log{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 28px}
+.row{display:grid;grid-template-columns:72px 1fr;gap:10px;padding-block:13px;border-top:1px solid var(--grid-strong)}
+.row .k{font-family:var(--mono);font-size:11.5px;color:var(--mark);letter-spacing:.06em;padding-top:3px}
+.row .big{font-family:var(--display);font-weight:600;font-size:20px;line-height:1.2}
+.row .v{color:var(--ink-soft);font-size:15px}
+@media (max-width:860px){.log{grid-template-columns:1fr}}
+@media (max-width:700px){.ach{grid-template-columns:1fr;gap:4px}}
+
+/* skills */
+.sk{display:grid;grid-template-columns:150px 1fr;gap:24px}
+.skrows{display:grid;gap:12px}
+.skrow{display:grid;grid-template-columns:90px 1fr;gap:14px;align-items:baseline}
+.skrow .tags{margin:0}
+@media (max-width:700px){.sk{grid-template-columns:1fr;gap:4px}}
+
+/* contact */
+.contact{padding-block:90px 60px}
+.contact .big{font-family:var(--display);font-weight:600;font-size:clamp(34px,6.5vw,72px);letter-spacing:-.03em;line-height:1;margin:0 0 22px;text-wrap:balance}
+.mail{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+.mail code{font-family:var(--mono);font-size:clamp(15px,2.2vw,20px);user-select:all;word-break:break-all}
+.copy{font-family:var(--mono);font-size:12px;padding:7px 12px;border-radius:4px;border:1px solid var(--grid-strong);background:var(--paper);color:var(--ink-soft);cursor:pointer}
+.copy:hover{color:var(--pen);border-color:var(--pen)}
+.links{display:flex;flex-wrap:wrap;gap:6px 18px}
+.links a{text-decoration:none;color:var(--ink-soft);border-bottom:1px solid transparent;transition:color .2s,border-color .2s}
+.links a:hover{color:var(--pen);border-color:var(--pen)}
+.top .links{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em}
+.endline{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:60px;padding-top:16px;border-top:1px solid var(--grid-strong);color:var(--ink-faint)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div class="rec lbl"><span class="dot" aria-hidden="true"></span> Archit Chhikara · CSE '27</div>
+    <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+      <span class="links"><a href="https://github.com/Archit0700" target="_blank" rel="noopener">GitHub</a><a href="https://www.linkedin.com/in/archit-496310277/" target="_blank" rel="noopener">LinkedIn</a></span>
+      <button class="theme" id="themeBtn" type="button">Theme: auto</button>
+    </div>
+  </header>
+
+  <div class="hero">
+    <h1>Archit Chhikara<span>.</span></h1>
+    <p class="lede">I work where signals meet models. From <em>EEG recordings of epilepsy patients</em> at IIT Indore to <em>stress-testing how large language models reason</em> at the University of Southampton.</p>
+
+    <div class="scope" aria-label="Section navigation drawn as an EEG trace">
+      <canvas id="eeg" aria-hidden="true"></canvas>
+      <nav class="chans">
+        <button class="chan" data-ch="0" data-go="work"><span class="id">Fp1</span><span class="nm">Work</span></button>
+        <button class="chan" data-ch="1" data-go="projects"><span class="id">F3</span><span class="nm">Projects</span></button>
+        <button class="chan" data-ch="2" data-go="ask"><span class="id">C3</span><span class="nm">Ask my resume</span></button>
+        <button class="chan" data-ch="3" data-go="contact"><span class="id">P3</span><span class="nm">Contact</span></button>
+      </nav>
+    </div>
+    <div class="scale mono"><span>Hover a channel to see a spike-wave burst · click to jump</span><span>256 Hz · 50 µV</span></div>
+  </div>
+
+  <section id="about" class="about">
+    <div class="lbl spacer">About</div>
+    <div>
+      <p>I'm a Computer Science undergraduate at Manipal University Jaipur. I like problems where the data is messy and the answer has to be trusted: seizure detection from raw brain signals, chatbots that must cite the page they answer from, and benchmarks that check whether an LLM gives the same answer twice.</p>
+      <p>Most of my work is in Python, Java and C++, with MATLAB for signal work. I keep my fundamentals sharp through competitive programming, with 645+ problems solved across CodeChef and LeetCode.</p>
+    </div>
+    <div class="facts">
+      <div><b>Based in</b>Bahadurgarh, Haryana</div>
+      <div><b>Studying</b>B.Tech CSE, Manipal University Jaipur, 2023–2027</div>
+      <div><b>Currently</b>Research Intern, University of Southampton</div>
+    </div>
+  </section>
+
+  <section id="work">
+    <div class="sh"><span class="lbl">Work</span><h2>Three internships, three kinds of data</h2></div>
+    <div class="tl">
+      <article class="ep">
+        <div class="when">Winter 2026<br><span class="now">● RECORDING</span></div>
+        <div>
+          <h3>University of Southampton</h3>
+          <div class="role">Research Intern · LLM evaluation</div>
+          <ul>
+            <li>Researching robustness, consistency and reasoning in large language models.</li>
+            <li>Designed benchmark prompts and automated evaluation frameworks.</li>
+          </ul>
+          <div class="tags"><span class="tag">LLMs</span><span class="tag">Benchmarking</span><span class="tag">Python</span></div>
+        </div>
+      </article>
+      <article class="ep">
+        <div class="when">Summer 2025</div>
+        <div>
+          <h3>KSAP Technologies Inc.</h3>
+          <div class="role">Software Development Intern</div>
+          <ul>
+            <li>Built a retrieval-augmented chatbot that answers questions over PDF documents.</li>
+            <li>Wrote the end-to-end pipeline: parsing, chunking, embeddings, vector storage and semantic retrieval.</li>
+            <li>Connected the LLM to vector search so answers stay grounded in the uploaded documents.</li>
+          </ul>
+          <div class="tags"><span class="tag">Hugging Face</span><span class="tag">ChromaDB</span><span class="tag">Gemini API</span><span class="tag">RAG</span></div>
+        </div>
+      </article>
+      <article class="ep">
+        <div class="when">Summer 2024</div>
+        <div>
+          <h3>IIT Indore</h3>
+          <div class="role">Research Intern · Biomedical signal processing</div>
+          <ul>
+            <li>Collected EEG recordings from epilepsy patients through hospital visits and prepared clinical datasets.</li>
+            <li>Developed preprocessing and feature-extraction pipelines for EEG analysis.</li>
+            <li>Designed MATLAB applications for automated seizure detection and visualization.</li>
+          </ul>
+          <div class="tags"><span class="tag">EEG</span><span class="tag">MATLAB</span><span class="tag">Signal processing</span></div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="projects">
+    <div class="sh"><span class="lbl">Projects</span><h2>Pipelines, stage by stage</h2></div>
+    <div class="projs">
+      <article class="proj">
+        <div class="num">Biomedical</div>
+        <div>
+          <h3>Epileptic seizure detection from EEG</h3>
+          <p>A machine-learning pipeline that classifies seizure activity from raw EEG, wrapped in a MATLAB GUI so clinicians can load a recording and see flagged segments.</p>
+          <div class="pipe">
+            <span class="stage" data-n="Raw multichannel EEG from patient recordings">Raw EEG</span><span class="arrow"></span>
+            <span class="stage" data-n="Filtering and artifact removal to clean the signal">Preprocess</span><span class="arrow"></span>
+            <span class="stage" data-n="Time and frequency features per window">Features</span><span class="arrow"></span>
+            <span class="stage" data-n="ML classifier labels each window seizure / non-seizure">Classify</span><span class="arrow"></span>
+            <span class="stage" data-n="MATLAB GUI plots the trace with detections marked">Visualize</span>
+          </div>
+          <div class="stage-note">Hover a stage.</div>
+        </div>
+      </article>
+      <article class="proj">
+        <div class="num">Vision</div>
+        <div>
+          <h3>Crowd detection and counting with VGG-16</h3>
+          <p>Transfer learning on VGG-16 to estimate crowd density and count people, evaluated on real-world crowd datasets.</p>
+          <div class="pipe">
+            <span class="stage" data-n="Crowd photographs from real-world datasets">Images</span><span class="arrow"></span>
+            <span class="stage" data-n="Pretrained VGG-16 convolutional layers, fine-tuned">VGG-16</span><span class="arrow"></span>
+            <span class="stage" data-n="Predicts a per-pixel crowd density map">Density map</span><span class="arrow"></span>
+            <span class="stage" data-n="Integrating the density map gives the head count">Count</span>
+          </div>
+          <div class="stage-note">Hover a stage.</div>
+        </div>
+      </article>
+      <article class="proj">
+        <div class="num">LLMs</div>
+        <div>
+          <h3>PDF question answering with RAG</h3>
+          <p>Upload a PDF, ask a question, get an answer grounded in the retrieved passages. Built with Hugging Face embeddings, ChromaDB and the Gemini API. The demo below runs a tiny version of the retrieval step on my resume.</p>
+          <div class="pipe">
+            <span class="stage" data-n="Extract text from the uploaded PDF">Parse</span><span class="arrow"></span>
+            <span class="stage" data-n="Split into overlapping chunks">Chunk</span><span class="arrow"></span>
+            <span class="stage" data-n="Hugging Face model turns chunks into vectors">Embed</span><span class="arrow"></span>
+            <span class="stage" data-n="Vectors stored in ChromaDB">Store</span><span class="arrow"></span>
+            <span class="stage" data-n="Nearest chunks to the question are retrieved">Retrieve</span><span class="arrow"></span>
+            <span class="stage" data-n="Gemini writes the answer from those chunks">Generate</span>
+          </div>
+          <div class="stage-note">Hover a stage.</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="ask" class="ask">
+    <div class="lbl" style="padding-top:6px">Ask my resume</div>
+    <div class="console">
+      <form class="q" id="qform">
+        <label for="qin" class="lbl" style="position:absolute;left:-9999px">Question</label>
+        <input id="qin" autocomplete="off" value="What did you do with EEG data?">
+        <button class="btn" type="submit">Retrieve</button>
+      </form>
+      <div class="chips" id="chips"></div>
+      <div class="hits" id="hits" aria-live="polite"></div>
+      <div class="foot">TF-IDF retrieval over chunks of my resume, running in your browser. It returns the closest passages and shows its similarity scores. No generation step, so nothing is made up.</div>
+    </div>
+  </section>
+
+  <section id="achievements" class="ach">
+    <div class="lbl" style="padding-top:14px">Achievements</div>
+    <div class="log">
+      <div class="row"><div class="k">2026</div><div><div class="big">Amazon ML Summer School</div><div class="v">Selected for the 2026 cohort.</div></div></div>
+      <div class="row"><div class="k">2026</div><div><div class="big">Deloitte Capstone Program</div><div class="v">Shortlisted for proposing an AI-driven enterprise solution.</div></div></div>
+      <div class="row"><div class="k">Hack</div><div><div class="big">2nd · 3rd · 9th</div><div class="v">2nd at Turing Hacks, 3rd at Turing Hacks 2.0, 9th rank at De-Fy Hacks.</div></div></div>
+      <div class="row"><div class="k">SIH</div><div><div class="big">Smart India Hackathon</div><div class="v">Qualified, and selected for university pre-incubation.</div></div></div>
+      <div class="row"><div class="k">CP</div><div><div class="big" id="cpCount">645+</div><div class="v">Problems solved across CodeChef and LeetCode.</div></div></div>
+      <div class="row"><div class="k">Research</div><div><div class="big">IIT Indore · Southampton</div><div class="v">Biomedical signal processing, then LLM evaluation.</div></div></div>
+    </div>
+  </section>
+
+  <section id="skills" class="sk">
+    <div class="lbl" style="padding-top:4px">Toolkit</div>
+    <div class="skrows">
+      <div class="skrow"><span class="lbl">Languages</span><div class="tags"><span class="tag">Java</span><span class="tag">Python</span><span class="tag">C++</span><span class="tag">C</span><span class="tag">HTML</span><span class="tag">CSS</span></div></div>
+      <div class="skrow"><span class="lbl">AI / ML</span><div class="tags"><span class="tag">Machine Learning</span><span class="tag">Computer Vision</span><span class="tag">Signal Processing</span><span class="tag">LLMs</span><span class="tag">MATLAB</span></div></div>
+      <div class="skrow"><span class="lbl">Core</span><div class="tags"><span class="tag">DSA</span><span class="tag">OOP</span><span class="tag">DBMS</span><span class="tag">Operating Systems</span><span class="tag">Computer Networks</span></div></div>
+      <div class="skrow"><span class="lbl">Tools</span><div class="tags"><span class="tag">Git</span><span class="tag">GitHub</span><span class="tag">VS Code</span><span class="tag">CodeChef</span><span class="tag">LeetCode</span></div></div>
+    </div>
+  </section>
+
+  <section id="contact" class="contact">
+    <div class="lbl" style="margin-bottom:14px">Contact</div>
+    <p class="big">Open to research and ML engineering roles for 2027.</p>
+    <div class="mail">
+      <code id="email">architchhikara9@gmail.com</code>
+      <button class="copy" id="copyBtn" type="button">Copy email</button>
+    </div>
+    <div class="endline mono"><span>Archit Chhikara · Bahadurgarh, Haryana</span><span class="links"><a href="https://www.linkedin.com/in/archit-496310277/" target="_blank" rel="noopener">LinkedIn ↗</a><a href="https://github.com/Archit0700" target="_blank" rel="noopener">GitHub ↗</a><a href="https://leetcode.com/u/Y7XO03omDJ/" target="_blank" rel="noopener">LeetCode ↗</a><a href="https://www.codechef.com/users/jaat_coder" target="_blank" rel="noopener">CodeChef ↗</a></span></div>
+  </section>
+</div>
+
+<script>
+(()=>{
+  const root=document.documentElement;
+  /* theme toggle: auto -> light -> dark */
+  const tb=document.getElementById('themeBtn');
+  const modes=['auto','light','dark'];let mi=0;
+  try{const s=localStorage.getItem('ac-theme');if(s&&modes.includes(s))mi=modes.indexOf(s)}catch(e){}
+  const applyTheme=()=>{const m=modes[mi];if(m==='auto')root.removeAttribute('data-theme');else root.setAttribute('data-theme',m);tb.textContent='Theme: '+m};
+  applyTheme();
+  tb.addEventListener('click',()=>{mi=(mi+1)%3;applyTheme();try{localStorage.setItem('ac-theme',modes[mi])}catch(e){}});
+
+  /* ---------- EEG canvas ---------- */
+  const cv=document.getElementById('eeg'),ctx=cv.getContext('2d');
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const N=4;let W=0,H=0,dpr=1;
+  const burst=[0,0,0,0],target=[0,0,0,0];
+  const seeds=[[1.3,2.1,9.7,10.4,0.6],[1.1,2.6,8.9,11.2,0.8],[0.9,2.3,10.1,9.5,0.7],[1.4,1.9,9.2,10.9,0.5]];
+  // cheap smooth noise
+  const noise=(x,s)=>Math.sin(x*1.7+s)*.5+Math.sin(x*3.1+s*2)*.3+Math.sin(x*7.3+s*3)*.2;
+  function resize(){dpr=Math.min(2,window.devicePixelRatio||1);const r=cv.getBoundingClientRect();W=r.width;H=r.height;cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)}
+  function col(name){return getComputedStyle(root).getPropertyValue(name).trim()}
+  function sample(c,t){
+    const s=seeds[c];
+    let v=Math.sin(t*s[0]*6.28*.6)*.35+Math.sin(t*s[1]*6.28*.6)*.2   // delta/theta
+        +Math.sin(t*s[2]*6.28)*.18*(.6+.4*Math.sin(t*.3+c))              // alpha waxing
+        +noise(t*6,c*10)*.25;
+    const b=burst[c];
+    if(b>0.01){ // 3 Hz spike-and-wave
+      const ph=(t*3)%1;
+      const spike=ph<.08?Math.sin(ph/.08*Math.PI)*-2.6:0;
+      const wave=ph>=.08?Math.sin((ph-.08)/.92*Math.PI)*1.1:0;
+      v=v*(1-b*.5)+(spike+wave)*b;
+    }
+    return v;
+  }
+  let t0=performance.now(),last=0;
+  function draw(now){
+    const t=(now-t0)/1000;
+    for(let c=0;c<N;c++){burst[c]+=(target[c]-burst[c])*.06}
+    ctx.clearRect(0,0,W,H);
+    const ink=col('--ink-soft'),pen=col('--pen'),grid=col('--grid-strong');
+    const rowH=H/N, x0=Math.min(200,W*.34), secs=4, pxs=(W-x0)/secs;
+    // second ticks
+    ctx.strokeStyle=grid;ctx.lineWidth=1;
+    for(let s=0;s<=secs;s++){const x=x0+s*pxs;ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}
+    for(let c=0;c<N;c++){
+      const cy=rowH*c+rowH/2, amp=rowH*.22;
+      ctx.beginPath();
+      ctx.strokeStyle=burst[c]>.15?pen:ink;
+      ctx.lineWidth=burst[c]>.15?1.6:1.15;
+      const start=x0-40;
+      for(let x=start;x<=W;x+=1.5){
+        const tt=t-(W-x)/pxs;
+        const y=cy+sample(c,tt)*amp;
+        x===start?ctx.moveTo(x,y):ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+    }
+    // fade the left edge into the labels
+    const g=ctx.createLinearGradient(x0-60,0,x0+10,0);
+    g.addColorStop(0,col('--paper'));g.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.globalCompositeOperation='destination-out';
+    const g2=ctx.createLinearGradient(x0-50,0,x0+10,0);g2.addColorStop(0,'rgba(0,0,0,1)');g2.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=g2;ctx.fillRect(0,0,x0+10,H);
+    ctx.globalCompositeOperation='source-over';
+    if(!reduce)requestAnimationFrame(draw);
+  }
+  resize();addEventListener('resize',()=>{resize();if(reduce)draw(performance.now())});
+  requestAnimationFrame(draw);
+  document.querySelectorAll('.chan').forEach(b=>{
+    const c=+b.dataset.ch;
+    const on=()=>{target[c]=1;if(reduce)setTimeout(()=>draw(performance.now()+2000),0)};
+    const off=()=>{target[c]=0;if(reduce){burst[c]=0;draw(performance.now())}};
+    b.addEventListener('mouseenter',()=>{on();if(reduce)burst[c]=1});b.addEventListener('mouseleave',off);
+    b.addEventListener('focus',()=>{on();if(reduce)burst[c]=1});b.addEventListener('blur',off);
+    b.addEventListener('click',()=>document.getElementById(b.dataset.go).scrollIntoView({behavior:reduce?'auto':'smooth'}));
+  });
+  new MutationObserver(()=>{if(reduce)draw(performance.now())}).observe(root,{attributes:true,attributeFilter:['data-theme']});
+
+  /* ---------- pipeline stage notes ---------- */
+  document.querySelectorAll('.proj').forEach(p=>{
+    const note=p.querySelector('.stage-note');const def=note.textContent;
+    p.querySelectorAll('.stage').forEach(s=>{
+      s.tabIndex=0;
+      const show=()=>{note.textContent=s.dataset.n};
+      s.addEventListener('mouseenter',show);s.addEventListener('focus',show);
+      s.addEventListener('mouseleave',()=>note.textContent=def);s.addEventListener('blur',()=>note.textContent=def);
+    });
+  });
+
+  /* ---------- tiny RAG retrieval ---------- */
+  const chunks=[
+    ['IIT Indore · 2024','Collected EEG recordings from epilepsy patients through hospital visits and prepared clinical datasets.'],
+    ['IIT Indore · 2024','Developed preprocessing and feature extraction pipelines for EEG signal analysis.'],
+    ['IIT Indore · 2024','Designed MATLAB applications for automated seizure detection and visualization.'],
+    ['KSAP · 2025','Developed a Retrieval-Augmented Generation (RAG) chatbot using Hugging Face, ChromaDB, and Google Gemini API for question answering over PDF documents.'],
+    ['KSAP · 2025','Built an end-to-end pipeline for PDF parsing, text chunking, embedding generation, vector storage, and semantic retrieval.'],
+    ['Southampton · 2026','Conducting research on robustness, consistency, and reasoning capabilities of Large Language Models.'],
+    ['Southampton · 2026','Designed benchmark prompts and automated evaluation frameworks for LLM evaluation.'],
+    ['Project','Crowd detection and counting using transfer learning with VGG-16, with crowd density estimation evaluated on real-world datasets.'],
+    ['Project','Automated epileptic seizure detection pipeline using EEG preprocessing, feature extraction, machine learning and a MATLAB GUI.'],
+    ['Skills','Languages: Java, Python, C++, C, HTML, CSS. Tools: Git, GitHub, VS Code.'],
+    ['Skills','AI and ML: Machine Learning, Computer Vision, Signal Processing, Large Language Models, MATLAB.'],
+    ['Education','B.Tech in Computer Science and Engineering at Manipal University Jaipur, 2023 to 2027.'],
+    ['Achievements','Selected for Amazon ML Summer School 2026 and shortlisted for the Deloitte Capstone Program 2026.'],
+    ['Achievements','2nd prize at Turing Hacks, 3rd prize at Turing Hacks 2.0, 9th rank at De-Fy Hacks, qualified for Smart India Hackathon.'],
+    ['Achievements','Solved 645+ programming problems across CodeChef and LeetCode competitive programming.'],
+  ];
+  const stop=new Set('a an the and or of to in on for with at by from is are was were what did do does you your i my me how which where who about over using use used any have has as it its this that be'.split(' '));
+  const stem=w=>w.replace(/(ings|ing|ed|es|s)$/,'');
+  const tok=s=>s.toLowerCase().match(/[a-z0-9+]+/g)?.filter(w=>!stop.has(w)&&w.length>1).map(stem)||[];
+  const docs=chunks.map(c=>tok(c[0]+' '+c[1]));
+  const df={};docs.forEach(d=>new Set(d).forEach(w=>df[w]=(df[w]||0)+1));
+  const idf=w=>Math.log((docs.length+1)/((df[w]||0)+1))+1;
+  const vec=ts=>{const v={};ts.forEach(w=>v[w]=(v[w]||0)+1);let n=0;for(const w in v){v[w]*=idf(w);n+=v[w]*v[w]}n=Math.sqrt(n)||1;for(const w in v)v[w]/=n;return v};
+  const dvecs=docs.map(vec);
+  const hitsEl=document.getElementById('hits');
+  function esc(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
+  function run(q){
+    const qv=vec(tok(q));
+    const scored=dvecs.map((d,i)=>{let s=0;for(const w in qv)if(d[w])s+=qv[w]*d[w];return [s,i]}).sort((a,b)=>b[0]-a[0]).slice(0,3);
+    const qset=new Set(Object.keys(qv));
+    if(!scored[0]||scored[0][0]===0){hitsEl.innerHTML='<div class="foot">No passage matched. Try words like EEG, RAG, LLM, Java or hackathon.</div>';return}
+    hitsEl.innerHTML=scored.filter(s=>s[0]>0).map(([s,i])=>{
+      const txt=esc(chunks[i][1]).replace(/[A-Za-z0-9+\-]+/g,w=>qset.has(stem(w.toLowerCase()))?'<mark>'+w+'</mark>':w);
+      return `<div class="hit"><div><div class="mono">${s.toFixed(2)}</div><div class="bar"><i style="width:0" data-w="${Math.min(100,s*100)}"></i></div></div><div class="txt"><div class="src lbl">${esc(chunks[i][0])}</div>${txt}</div></div>`;
+    }).join('');
+    requestAnimationFrame(()=>hitsEl.querySelectorAll('.bar i').forEach(b=>b.style.width=b.dataset.w+'%'));
+  }
+  const qin=document.getElementById('qin');
+  document.getElementById('qform').addEventListener('submit',e=>{e.preventDefault();run(qin.value)});
+  const chipsEl=document.getElementById('chips');
+  ['What did you do with EEG data?','Have you built a RAG system?','LLM research','Which languages do you know?','Hackathon results'].forEach(q=>{
+    const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=q;
+    b.addEventListener('click',()=>{qin.value=q;run(q)});chipsEl.appendChild(b);
+  });
+  run(qin.value);
+
+  /* ---------- copy email ---------- */
+  const cb=document.getElementById('copyBtn'),em=document.getElementById('email');
+  cb.addEventListener('click',()=>{
+    const done=()=>{cb.textContent='Copied';setTimeout(()=>cb.textContent='Copy email',1600)};
+    const fallback=()=>{const r=document.createRange();r.selectNodeContents(em);const s=getSelection();s.removeAllRanges();s.addRange(r);cb.textContent='Selected, press Ctrl+C'};
+    try{navigator.clipboard.writeText(em.textContent).then(done,fallback)}catch(e){fallback()}
+  });
+})();
+</script>
+</body>
+</html>
